@@ -155,6 +155,15 @@ where
                 continue;
             }
 
+            // CS2 builds of Apr-May 2024 prefix every delta entry with two
+            // PVS-visibility bits; the low bit means "no update follows".
+            if cmd == 0
+                && packet_entities.has_pvs_vis_bits_deprecated() > 0
+                && reader.read_bits(2) & 1 != 0
+            {
+                continue;
+            }
+
             match EntityEvents::from_cmd(cmd) {
                 EntityEvents::Created => self.entity_created(&mut reader, index)?,
                 EntityEvents::Updated => self.entity_updated(&mut reader, index)?,
